@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Avisos() {
+export default function Avisos({ apiUrl }) {
   const [campaigns, setCampaigns] = useState([]);
   const [stats, setStats] = useState({ inscritos: 0, naoInscritos: 0, taxa: 0 });
   const [showModal, setShowModal] = useState(false);
@@ -24,7 +24,7 @@ export default function Avisos() {
 
   const checkWhatsApp = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/whatsapp/status');
+      const res = await fetch(`${apiUrl}/api/whatsapp/status`);
       const data = await res.json();
       setWhatsappConnected(data.isReady);
     } catch (error) {
@@ -34,9 +34,9 @@ export default function Avisos() {
 
   const fetchCampaigns = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/campaigns');
+      const res = await fetch(`${apiUrl}/api/campaigns`);
       const data = await res.json();
-      setCampaigns(data);
+      setCampaigns(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Erro:', error);
     }
@@ -44,7 +44,7 @@ export default function Avisos() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/dashboard/stats');
+      const res = await fetch(`${apiUrl}/api/dashboard/stats`);
       const data = await res.json();
       setStats({
         inscritos: data.inscritosAvisos || 0,
@@ -88,7 +88,7 @@ export default function Avisos() {
     
     setSending(true);
     try {
-      const url = 'http://localhost:3001/api/campaigns';
+      const url = `${apiUrl}/api/campaigns`;
       const method = 'POST';
       
       const payload = {
@@ -96,8 +96,7 @@ export default function Avisos() {
         mensagem: newCampaign.mensagem,
         link_url: newCampaign.linkUrl,
         media_data: newCampaign.mediaData,
-        media_type: newCampaign.mediaType,
-        media_list: newCampaign.mediaData ? [{ type: 'image', data: newCampaign.mediaData }] : []
+        media_type: newCampaign.mediaType
       };
       
       const res = await fetch(url, {
@@ -125,7 +124,7 @@ export default function Avisos() {
   const sendCampaign = async (campaign) => {
     setSending(true);
     try {
-      const res = await fetch(`http://localhost:3001/api/campaigns/${campaign.id}/send`, { method: 'POST' });
+      const res = await fetch(`${apiUrl}/api/campaigns/${campaign.id}/send`, { method: 'POST' });
       const result = await res.json();
       
       if (result.success) {
@@ -144,7 +143,7 @@ export default function Avisos() {
   const deleteCampaign = async (id) => {
     if (confirm('Excluir esta campanha?')) {
       try {
-        await fetch(`http://localhost:3001/api/campaigns/${id}`, { method: 'DELETE' });
+        await fetch(`${apiUrl}/api/campaigns/${id}`, { method: 'DELETE' });
         fetchCampaigns();
       } catch (error) {
         alert('Erro ao excluir');
@@ -165,7 +164,6 @@ export default function Avisos() {
         <p style={{ color: '#8e8e93' }}>Gerencie e envie campanhas para seus usuários</p>
       </div>
 
-      {/* Cards de Estatísticas com fundo acinzentado */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
         <div style={{ background: '#1c1c1e', borderRadius: '16px', padding: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)' }}>
           <p style={{ color: '#8e8e93', fontSize: '14px', marginBottom: '8px' }}>Inscritos</p>
@@ -223,7 +221,7 @@ export default function Avisos() {
                 <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', background: c.status === 'enviada' ? 'rgba(52, 199, 89, 0.15)' : 'rgba(255, 149, 0, 0.15)', color: c.status === 'enviada' ? '#34c759' : '#ff9f0a' }}>
                   {c.status === 'enviada' ? '✓ Enviada' : '📝 Rascunho'}
                 </span>
-                <button onClick={() => deleteCampaign(c.id)} style={{ background: 'rgba(255, 59, 48, 0.15)', border: 'none', fontSize: '16px', cursor: 'pointer', padding: '6px 10px', borderRadius: '8px', color: '#ff3b30' }} title="Excluir">🗑️</button>
+                <button onClick={() => deleteCampaign(c.id)} style={{ background: 'rgba(255, 59, 48, 0.15)', border: 'none', fontSize: '16px', cursor: 'pointer', padding: '6px 10px', borderRadius: '8px', color: '#ff3b30' }}>🗑️</button>
                 <button onClick={() => sendCampaign(c)} disabled={sending || !whatsappConnected} style={{ background: '#0a84ff', color: 'white', padding: '6px 14px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', opacity: (sending || !whatsappConnected) ? 0.5 : 1 }}>
                   {c.status === 'enviada' ? '📤 Reenviar' : '📤 Enviar'}
                 </button>
@@ -239,7 +237,6 @@ export default function Avisos() {
         )}
       </div>
 
-      {/* Modal Nova Campanha - tema escuro */}
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
           <div style={{ background: '#1c1c1e', borderRadius: '20px', padding: '24px', width: '500px', maxHeight: '80vh', overflow: 'auto', border: '1px solid rgba(255,255,255,0.1)' }}>
