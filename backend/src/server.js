@@ -2,7 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { startWhatsAppClient, getQrCode, getStatus } from './whatsapp/client.js';
+import { getQrCode, getStatus } from './whatsapp/client.js';
 import { setupRoutes } from './api/routes.js';
 
 dotenv.config();
@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Configuração CORS corrigida - permite qualquer origem para o frontend
+// Configuração CORS
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -18,7 +18,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Middleware para parsing de JSON com limite maior para imagens
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -55,17 +54,18 @@ app.get('/api/whatsapp/status', (req, res) => {
   }
 });
 
-// Health check - útil para monitoramento
+// Health check
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     service: 'Jennyfer Backend', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    whatsapp: 'desativado'
   });
 });
 
-// Rota raiz para verificar se o servidor está rodando
+// Rota raiz
 app.get('/', (req, res) => {
   res.json({
     message: 'Jennyfer API - Consultora de Moda IA',
@@ -79,11 +79,12 @@ app.get('/', (req, res) => {
       whatsapp_qr: '/api/whatsapp/qr',
       whatsapp_status: '/api/whatsapp/status',
       health: '/health'
-    }
+    },
+    note: 'WhatsApp não está ativo no servidor. Use localhost para WhatsApp.'
   });
 });
 
-// Tratamento de erros 404 (rota não encontrada)
+// Tratamento de erros 404
 app.use((req, res) => {
   res.status(404).json({ 
     error: 'Rota não encontrada',
@@ -101,11 +102,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Iniciar servidor
+// Iniciar servidor (sem WhatsApp)
 const server = app.listen(PORT, () => {
   console.log(`✨ Jennyfer Backend rodando na porta ${PORT}`);
   console.log(`📱 API disponível em http://localhost:${PORT}`);
   console.log(`🌐 CORS habilitado para todas as origens`);
+  console.log(`⚠️ WhatsApp está DESATIVADO neste servidor`);
   console.log(`📋 Rotas disponíveis:`);
   console.log(`   - GET  /api/users`);
   console.log(`   - GET  /api/campaigns`);
@@ -117,7 +119,6 @@ const server = app.listen(PORT, () => {
   console.log(`   - GET  /health`);
 });
 
-// Graceful shutdown (encerramento limpo)
 process.on('SIGTERM', () => {
   console.log('SIGTERM recebido, fechando servidor...');
   server.close(() => {
@@ -126,5 +127,5 @@ process.on('SIGTERM', () => {
   });
 });
 
-// Iniciar cliente WhatsApp (depois do servidor)
-startWhatsAppClient();
+// Não iniciar WhatsApp no servidor
+// startWhatsAppClient();  // DESATIVADO no servidor
