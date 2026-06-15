@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
-export default function WhatsAppQR() {
+export default function WhatsAppQR({ apiUrl }) {
   const [qrCode, setQrCode] = useState(null);
   const [status, setStatus] = useState('loading');
 
   useEffect(() => {
     const fetchQr = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/whatsapp/qr');
+        const res = await fetch(`${apiUrl}/api/whatsapp/qr`);
         const data = await res.json();
         
         if (data.status === 'connected') {
@@ -27,7 +27,7 @@ export default function WhatsAppQR() {
     fetchQr();
     const interval = setInterval(fetchQr, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [apiUrl]);
 
   const getQrImageUrl = (qrText) => {
     return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrText)}`;
@@ -46,10 +46,11 @@ export default function WhatsAppQR() {
         padding: '40px',
         textAlign: 'center',
         maxWidth: '500px',
-        margin: '0 auto'
+        margin: '0 auto',
+        border: '1px solid rgba(255,255,255,0.08)'
       }}>
         {status === 'connected' && (
-          <div style={{ background: 'rgba(52, 199, 89, 0.2)', padding: '20px', borderRadius: '14px', color: '#34c759' }}>
+          <div style={{ background: 'rgba(52, 199, 89, 0.15)', padding: '20px', borderRadius: '14px', color: '#34c759', border: '1px solid rgba(52, 199, 89, 0.3)' }}>
             ✅ WhatsApp conectado com sucesso!
             <br />
             <span style={{ fontSize: '14px', marginTop: '10px', display: 'block', color: '#8e8e93' }}>
@@ -59,26 +60,18 @@ export default function WhatsAppQR() {
         )}
         
         {status === 'error' && (
-          <div style={{ background: 'rgba(255, 59, 48, 0.2)', padding: '20px', borderRadius: '14px', color: '#ff3b30' }}>
+          <div style={{ background: 'rgba(255, 59, 48, 0.15)', padding: '20px', borderRadius: '14px', color: '#ff3b30', border: '1px solid rgba(255, 59, 48, 0.3)' }}>
             ❌ Erro de conexão
             <br />
             <span style={{ fontSize: '14px', marginTop: '10px', display: 'block', color: '#8e8e93' }}>
-              Verifique se o backend está rodando na porta 3001
+              Verifique se o backend está rodando
             </span>
           </div>
         )}
         
         {status === 'loading' && !qrCode && (
           <div>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              border: '3px solid rgba(255,255,255,0.1)',
-              borderTop: '3px solid #ffffff',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-              margin: '20px auto'
-            }} />
+            <div className="spinner" style={{ margin: '20px auto' }} />
             <p style={{ color: '#8e8e93' }}>Aguardando QR Code...</p>
           </div>
         )}
