@@ -10,6 +10,8 @@ import Tendencias from './pages/Tendencias';
 import Analytics from './pages/Analytics';
 import Memoria from './pages/Memoria';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 function App() {
   const [activeTab, setActiveTab] = useState('whatsapp');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -36,7 +38,7 @@ function App() {
       background: '#000000',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
     }}>
-      {/* Sidebar - Design Apple */}
+      {/* Sidebar */}
       <div style={{
         width: sidebarCollapsed ? '80px' : '280px',
         background: '#1c1c1e',
@@ -50,7 +52,6 @@ function App() {
         transition: 'all 0.3s ease',
         zIndex: 100
       }}>
-        {/* Logo */}
         <div style={{ 
           marginBottom: '40px', 
           paddingLeft: sidebarCollapsed ? '0' : '12px',
@@ -84,7 +85,6 @@ function App() {
           )}
         </div>
         
-        {/* Botão colapsar */}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           style={{
@@ -103,7 +103,6 @@ function App() {
           {sidebarCollapsed ? '→' : '←'}
         </button>
         
-        {/* Navegação */}
         <nav>
           {tabs.map(tab => (
             <button
@@ -127,12 +126,6 @@ function App() {
                 justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                 gap: '12px'
               }}
-              onMouseEnter={(e) => {
-                if (activeTab !== tab.id) e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== tab.id) e.currentTarget.style.background = 'transparent';
-              }}
             >
               <span style={{ fontSize: '18px' }}>{tab.icon}</span>
               {!sidebarCollapsed && <span>{tab.name}</span>}
@@ -141,7 +134,6 @@ function App() {
         </nav>
       </div>
       
-      {/* Main Content */}
       <div style={{ 
         flex: 1, 
         padding: '32px 40px', 
@@ -150,10 +142,9 @@ function App() {
         color: '#ffffff',
         transition: 'all 0.3s ease'
       }}>
-        <ActiveComponent />
+        <ActiveComponent apiUrl={API_URL} />
       </div>
 
-      {/* Estilos globais */}
       <style>
         {`
           * {
@@ -167,7 +158,6 @@ function App() {
             color: #ffffff;
           }
           
-          /* Scrollbar estilo Apple */
           ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -187,7 +177,6 @@ function App() {
             background: #48484a;
           }
           
-          /* Animações */
           @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
