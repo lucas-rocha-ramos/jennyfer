@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Galeria() {
+export default function Galeria({ apiUrl }) {
   const [images, setImages] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState('all');
@@ -16,9 +16,9 @@ export default function Galeria() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/users');
+      const res = await fetch(`${apiUrl}/api/users`);
       const data = await res.json();
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Erro:', error);
     }
@@ -28,8 +28,8 @@ export default function Galeria() {
     setLoading(true);
     try {
       const url = selectedUser === 'all' 
-        ? 'http://localhost:3001/api/images' 
-        : `http://localhost:3001/api/images/user/${selectedUser}`;
+        ? `${apiUrl}/api/images` 
+        : `${apiUrl}/api/images/user/${selectedUser}`;
       const res = await fetch(url);
       const data = await res.json();
       setImages(Array.isArray(data) ? data : []);
@@ -82,7 +82,7 @@ export default function Galeria() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px' }}>
           {images.map(img => (
-            <div key={img.id} style={{ background: '#1c1c1e', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', transition: 'transform 0.2s ease' }}>
+            <div key={img.id} style={{ background: '#1c1c1e', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
               <img 
                 src={img.url_webp || img.url} 
                 alt="Look gerado" 
@@ -90,10 +90,10 @@ export default function Galeria() {
                 onError={(e) => { e.target.src = 'https://via.placeholder.com/300?text=Erro'; }}
               />
               <div style={{ padding: '12px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 500, color: '#ffffff', marginBottom: '4px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 500, color: '#ffffff' }}>
                   {img.users?.nome || img.users?.whatsapp_number || 'Anônimo'}
                 </div>
-                <div style={{ fontSize: '11px', color: '#8e8e93' }}>
+                <div style={{ fontSize: '11px', color: '#8e8e93', marginTop: '4px' }}>
                   {new Date(img.created_at).toLocaleDateString('pt-BR')}
                 </div>
                 {img.estilo && (
