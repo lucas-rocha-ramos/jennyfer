@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Catalogo() {
+export default function Catalogo({ apiUrl }) {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -28,7 +28,7 @@ export default function Catalogo() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3001/api/catalogo');
+      const res = await fetch(`${apiUrl}/api/catalogo`);
       const data = await res.json();
       setProducts(Array.isArray(data) ? data : []);
       const uniqueCategories = [...new Set(data.map(p => p.category).filter(Boolean))];
@@ -51,7 +51,7 @@ export default function Catalogo() {
         
         setAnalyzing(true);
         try {
-          const res = await fetch('http://localhost:3001/api/catalogo/analisar', {
+          const res = await fetch(`${apiUrl}/api/catalogo/analisar`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ imageDataUrl })
@@ -85,8 +85,8 @@ export default function Catalogo() {
     setLoading(true);
     try {
       const url = editingProduct 
-        ? `http://localhost:3001/api/catalogo/${editingProduct.id}`
-        : 'http://localhost:3001/api/catalogo';
+        ? `${apiUrl}/api/catalogo/${editingProduct.id}`
+        : `${apiUrl}/api/catalogo`;
       const method = editingProduct ? 'PUT' : 'POST';
       
       const res = await fetch(url, {
@@ -114,7 +114,7 @@ export default function Catalogo() {
   const deleteProduct = async (id) => {
     if (confirm('Excluir este produto?')) {
       try {
-        await fetch(`http://localhost:3001/api/catalogo/${id}`, { method: 'DELETE' });
+        await fetch(`${apiUrl}/api/catalogo/${id}`, { method: 'DELETE' });
         fetchProducts();
       } catch (error) {
         alert('Erro ao excluir');
@@ -235,9 +235,8 @@ export default function Catalogo() {
         )}
       </div>
 
-      {/* Modal Novo/Editar Produto */}
       {showModal && (
-        <div className="modal-backdrop">
+        <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
           <div style={{ background: '#1c1c1e', borderRadius: '20px', padding: '24px', width: '550px', maxHeight: '80vh', overflow: 'auto', border: '1px solid rgba(255,255,255,0.1)' }}>
             <h2 style={{ marginBottom: '20px', fontSize: '24px', fontWeight: 600, color: '#ffffff' }}>{editingProduct ? '✏️ Editar' : '📝 Novo'} Produto</h2>
             
