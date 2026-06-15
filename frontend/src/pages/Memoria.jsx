@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Memoria() {
+export default function Memoria({ apiUrl }) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [memory, setMemory] = useState(null);
@@ -18,9 +18,9 @@ export default function Memoria() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/users');
+      const res = await fetch(`${apiUrl}/api/users`);
       const data = await res.json();
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : []);
       if (data.length > 0) setSelectedUser(data[0].id);
     } catch (error) {
       console.error('Erro:', error);
@@ -31,7 +31,7 @@ export default function Memoria() {
 
   const fetchMemory = async () => {
     try {
-      const res = await fetch(`http://localhost:3001/api/memoria/${selectedUser}`);
+      const res = await fetch(`${apiUrl}/api/memoria/${selectedUser}`);
       const data = await res.json();
       setMemory(data);
     } catch (error) {
@@ -66,7 +66,7 @@ export default function Memoria() {
       <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '24px' }}>
         <div style={{ background: '#1c1c1e', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#ffffff' }}>👥 Usuários</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '500px', overflowY: 'auto' }}>
             {users.map(user => (
               <button
                 key={user.id}
