@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 
 const COLORS = ['#0a84ff', '#34c759', '#ff9f0a', '#ff3b30', '#5e5ce6', '#ff2d55', '#32ade6', '#af52de'];
 
-export default function Tendencias() {
+export default function Tendencias({ apiUrl }) {
   const [trends, setTrends] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -15,12 +15,12 @@ export default function Tendencias() {
   const fetchData = async () => {
     try {
       const [trendsRes, statsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/trends'),
-        fetch('http://localhost:3001/api/dashboard/stats')
+        fetch(`${apiUrl}/api/trends`),
+        fetch(`${apiUrl}/api/dashboard/stats`)
       ]);
       const trendsData = await trendsRes.json();
       const statsData = await statsRes.json();
-      setTrends(trendsData);
+      setTrends(Array.isArray(trendsData) ? trendsData : []);
       setStats(statsData);
     } catch (error) {
       console.error('Erro:', error);
@@ -70,37 +70,49 @@ export default function Tendencias() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', marginBottom: '24px' }}>
         <div style={{ background: '#1c1c1e', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px', color: '#ffffff' }}>🔥 Estilos Mais Solicitados</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={trends.slice(0, 8)}>
-              <XAxis dataKey="name" tick={{ fill: '#8e8e93' }} />
-              <YAxis tick={{ fill: '#8e8e93' }} />
-              <Tooltip contentStyle={{ background: '#1c1c1e', borderColor: 'rgba(255,255,255,0.1)', color: '#ffffff' }} />
-              <Bar dataKey="value" fill="#0a84ff" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {trends.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={trends.slice(0, 8)}>
+                <XAxis dataKey="name" tick={{ fill: '#8e8e93' }} angle={-45} textAnchor="end" height={80} />
+                <YAxis tick={{ fill: '#8e8e93' }} />
+                <Tooltip contentStyle={{ background: '#1c1c1e', borderColor: 'rgba(255,255,255,0.1)', color: '#ffffff' }} />
+                <Bar dataKey="value" fill="#0a84ff" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#636366' }}>
+              <p>Aguardando dados</p>
+            </div>
+          )}
         </div>
 
         <div style={{ background: '#1c1c1e', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px', color: '#ffffff' }}>🎨 Distribuição de Estilos</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={trends.slice(0, 6)}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {trends.slice(0, 6).map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ background: '#1c1c1e', borderColor: 'rgba(255,255,255,0.1)', color: '#ffffff' }} />
-            </PieChart>
-          </ResponsiveContainer>
+          {trends.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={trends.slice(0, 6)}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {trends.slice(0, 6).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={{ background: '#1c1c1e', borderColor: 'rgba(255,255,255,0.1)', color: '#ffffff' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#636366' }}>
+              <p>Aguardando dados</p>
+            </div>
+          )}
         </div>
       </div>
 
