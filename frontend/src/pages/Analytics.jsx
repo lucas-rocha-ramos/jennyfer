@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-export default function Analytics() {
+export default function Analytics({ apiUrl }) {
   const [stats, setStats] = useState({});
   const [trends, setTrends] = useState([]);
   const [images, setImages] = useState([]);
@@ -14,16 +14,16 @@ export default function Analytics() {
   const fetchData = async () => {
     try {
       const [statsRes, trendsRes, imagesRes] = await Promise.all([
-        fetch('http://localhost:3001/api/dashboard/stats'),
-        fetch('http://localhost:3001/api/trends'),
-        fetch('http://localhost:3001/api/images')
+        fetch(`${apiUrl}/api/dashboard/stats`),
+        fetch(`${apiUrl}/api/trends`),
+        fetch(`${apiUrl}/api/images`)
       ]);
       const statsData = await statsRes.json();
       const trendsData = await trendsRes.json();
       const imagesData = await imagesRes.json();
       setStats(statsData);
-      setTrends(trendsData);
-      setImages(imagesData);
+      setTrends(Array.isArray(trendsData) ? trendsData : []);
+      setImages(Array.isArray(imagesData) ? imagesData : []);
     } catch (error) {
       console.error('Erro:', error);
     } finally {
