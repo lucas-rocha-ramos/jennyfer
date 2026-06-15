@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Usuarios() {
+export default function Usuarios({ apiUrl }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -12,7 +12,7 @@ export default function Usuarios() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/users');
+      const response = await fetch(`${apiUrl}/api/users`);
       const data = await response.json();
       setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
