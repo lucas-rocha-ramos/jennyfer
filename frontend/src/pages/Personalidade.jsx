@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Personalidade() {
+export default function Personalidade({ apiUrl }) {
   const [config, setConfig] = useState({
     nome: 'Jennyfer',
     tomVoz: 'amiga especialista em moda',
@@ -18,7 +18,7 @@ export default function Personalidade() {
 
   const fetchConfig = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/config/personalidade');
+      const res = await fetch(`${apiUrl}/api/config/personalidade`);
       const data = await res.json();
       if (data && Object.keys(data).length > 0) setConfig(data);
     } catch (error) {
@@ -31,7 +31,7 @@ export default function Personalidade() {
   const saveConfig = async () => {
     setSaving(true);
     try {
-      await fetch('http://localhost:3001/api/config/personalidade', {
+      await fetch(`${apiUrl}/api/config/personalidade`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config)
