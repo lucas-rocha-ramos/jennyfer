@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Conhecimento() {
+export default function Conhecimento({ apiUrl }) {
   const [knowledge, setKnowledge] = useState({ guides: [], trends: [], faqs: [] });
   const [newGuide, setNewGuide] = useState('');
   const [newTrend, setNewTrend] = useState('');
@@ -15,7 +15,7 @@ export default function Conhecimento() {
   const fetchKnowledge = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3001/api/config/conhecimento');
+      const res = await fetch(`${apiUrl}/api/config/conhecimento`);
       const data = await res.json();
       setKnowledge(data);
     } catch (error) {
@@ -27,7 +27,7 @@ export default function Conhecimento() {
 
   const saveKnowledge = async (data) => {
     try {
-      await fetch('http://localhost:3001/api/config/conhecimento', {
+      await fetch(`${apiUrl}/api/config/conhecimento`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -108,7 +108,7 @@ export default function Conhecimento() {
         {/* Guias de Moda */}
         <div style={{ background: '#1c1c1e', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#ffffff' }}>📖 Guias de Moda</h2>
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginBottom: '16px', maxHeight: '200px', overflowY: 'auto' }}>
             {knowledge.guides.map((guide, index) => (
               <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <span style={{ color: '#8e8e93' }}>{guide}</span>
@@ -134,7 +134,7 @@ export default function Conhecimento() {
         {/* Tendências */}
         <div style={{ background: '#1c1c1e', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#ffffff' }}>🔥 Tendências</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px', maxHeight: '200px', overflowY: 'auto' }}>
             {knowledge.trends.map((trend, index) => (
               <span key={index} style={{ background: 'rgba(255,255,255,0.08)', padding: '6px 12px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: '#8e8e93' }}>
                 {trend}
@@ -160,16 +160,18 @@ export default function Conhecimento() {
         {/* FAQs */}
         <div style={{ gridColumn: 'span 2', background: '#1c1c1e', borderRadius: '20px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#ffffff' }}>❓ Perguntas Frequentes</h2>
-          {knowledge.faqs.map((faq, index) => (
-            <div key={index} style={{ marginBottom: '16px', padding: '16px', background: '#2c2c2e', borderRadius: '12px', position: 'relative' }}>
-              <button onClick={() => removeFaq(index)} style={{ position: 'absolute', top: '12px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: '#636366', fontSize: '16px' }}>🗑️</button>
-              <p style={{ fontWeight: 600, marginBottom: '8px', color: '#ffffff', paddingRight: '30px' }}>{faq.pergunta}</p>
-              <p style={{ color: '#8e8e93', fontSize: '14px' }}>{faq.resposta}</p>
-            </div>
-          ))}
-          {knowledge.faqs.length === 0 && (
-            <p style={{ color: '#636366', textAlign: 'center', padding: '30px' }}>Nenhuma FAQ cadastrada</p>
-          )}
+          <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '16px' }}>
+            {knowledge.faqs.map((faq, index) => (
+              <div key={index} style={{ marginBottom: '16px', padding: '16px', background: '#2c2c2e', borderRadius: '12px', position: 'relative' }}>
+                <button onClick={() => removeFaq(index)} style={{ position: 'absolute', top: '12px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: '#636366', fontSize: '16px' }}>🗑️</button>
+                <p style={{ fontWeight: 600, marginBottom: '8px', color: '#ffffff', paddingRight: '30px' }}>{faq.pergunta}</p>
+                <p style={{ color: '#8e8e93', fontSize: '14px' }}>{faq.resposta}</p>
+              </div>
+            ))}
+            {knowledge.faqs.length === 0 && (
+              <p style={{ color: '#636366', textAlign: 'center', padding: '30px' }}>Nenhuma FAQ cadastrada</p>
+            )}
+          </div>
           <div style={{ display: 'grid', gap: '12px', marginTop: '16px' }}>
             <input
               type="text"
